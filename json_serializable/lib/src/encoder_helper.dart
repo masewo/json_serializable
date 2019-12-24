@@ -24,47 +24,73 @@ abstract class EncodeHelper implements HelperCore {
 
     final writeNaive = accessibleFields.every(_writeJsonValueNaive);
 
+    final root = _FieldNode('');
+    for (final field in accessibleFields) {
+      final path = _buildPath(field);
+      if (path == null || path.isEmpty) {
+        root.addField(field);
+      } else {
+        var parent = root;
+        for (final pathElement in path) {
+          parent = parent.getOrAddChild(pathElement);
+        }
+        parent.addField(field);
+      }
+    }
+    ;
+
     if (writeNaive) {
       // write simple `toJson` method that includes all keys...
-      _writeToJsonSimple(buffer, accessibleFields);
+      _writeToJsonSimple(buffer, root);
     } else {
       // At least one field should be excluded if null
-      _writeToJsonWithNullChecks(buffer, accessibleFields);
+      _writeToJsonWithNullChecks(buffer, root);
     }
 
     yield buffer.toString();
   }
 
-  void _writeToJsonSimple(StringBuffer buffer, Iterable<FieldElement> fields) {
+  void _writeToJsonSimple(StringBuffer buffer, _FieldNode root) {
     buffer.writeln('=> <String, dynamic>{');
 
-    buffer.writeAll(fields.map((field) {
-      final access = _fieldAccess(field);
-      final path = _buildPath(field);
-      if (path == null || path.isEmpty) {
-        final value =
-            '${safeNameAccess(field)}: ${_serializeField(field, access)}';
-        return '        $value,\n';
-      } else {
-        StringBuffer pathBuffer = StringBuffer();
-        for (final pathEntry in path) {
-          pathBuffer.writeln("'$pathEntry': {");
-        }
-        pathBuffer.writeln('${safeNameAccess(field)}: ${_serializeField(field, access)},');
-        for (final pathEntry in path) {
-          pathBuffer.writeln("},");
-        }
-        return pathBuffer.toString();
-      }
-    }));
+    _writeFieldNaive(buffer, root);
 
     buffer.writeln('};');
   }
 
+  void _writeFieldNaive(StringBuffer buffer, _FieldNode root) {
+    final writePath = root.path != null && root.path.isNotEmpty;
+    if (writePath) buffer.writeln("'${root.path}':{");
+
+    root.fields.forEach((field) {
+      final access = _fieldAccess(field);
+
+      buffer.writeln('${safeNameAccess(field)}: ${_serializeField(field, access)},');
+    });
+    if (root.childPaths.isNotEmpty) {
+      root.childPaths.forEach((child) {
+        _writeFieldNaive(buffer, child);
+      });
+    }
+
+    if (writePath) buffer.writeln('}');
+  }
+
+  String _generateAccessorPath(List<String> path, FieldElement field, {String access, String expression}) {
+    final pathBuffer = StringBuffer();
+    for (final pathEntry in path) {
+      pathBuffer.writeln("'$pathEntry': {");
+    }
+    pathBuffer.writeln('${safeNameAccess(field)}: ${expression ?? _serializeField(field, access)},');
+    for (final pathEntry in path) {
+      pathBuffer.writeln('}');
+    }
+    return pathBuffer.toString();
+  }
+
   static const _toJsonParamName = 'instance';
 
-  void _writeToJsonWithNullChecks(
-      StringBuffer buffer, Iterable<FieldElement> fields) {
+  void _writeToJsonWithNullChecks(StringBuffer buffer, _FieldNode root) {
     buffer.writeln('{');
 
     buffer.writeln('    final $generatedLocalVarName = <String, dynamic>{');
@@ -75,14 +101,14 @@ abstract class EncodeHelper implements HelperCore {
     // serialization.
     var directWrite = true;
 
-    for (final field in fields) {
+    // First write out the top level fields.
+    for (final field in root.fields) {
       var safeFieldAccess = _fieldAccess(field);
       final safeJsonKeyString = safeNameAccess(field);
 
       // If `fieldName` collides with one of the local helpers, prefix
       // access with `this.`.
-      if (safeFieldAccess == generatedLocalVarName ||
-          safeFieldAccess == toJsonMapHelperName) {
+      if (safeFieldAccess == generatedLocalVarName || safeFieldAccess == toJsonMapHelperName) {
         safeFieldAccess = 'this.$safeFieldAccess';
       }
 
@@ -91,8 +117,7 @@ abstract class EncodeHelper implements HelperCore {
         if (directWrite) {
           buffer.writeln('      $safeJsonKeyString: $expression,');
         } else {
-          buffer.writeln(
-              '    $generatedLocalVarName[$safeJsonKeyString] = $expression;');
+          buffer.writeln('    $generatedLocalVarName[$safeJsonKeyString] = $expression;');
         }
       } else {
         if (directWrite) {
@@ -100,6 +125,7 @@ abstract class EncodeHelper implements HelperCore {
           buffer.writeln('    };');
           buffer.writeln();
 
+          directWrite = false;
           // write the helper to be used by all following null-excluding
           // fields
           buffer.writeln('''
@@ -109,11 +135,17 @@ abstract class EncodeHelper implements HelperCore {
       }
     }
 ''');
-          directWrite = false;
         }
-        buffer.writeln(
-            '    $toJsonMapHelperName($safeJsonKeyString, $expression);');
+        buffer.writeln('    $toJsonMapHelperName($safeJsonKeyString, $expression);');
       }
+    }
+    if (directWrite) {
+      buffer.writeln('    };');
+    }
+
+    // We have children in path, they need to be 'safe'
+    for (final child in root.childPaths) {
+      _writeSafe(buffer, generatedLocalVarName, child, []);
     }
 
     buffer.writeln('    return $generatedLocalVarName;');
@@ -122,11 +154,44 @@ abstract class EncodeHelper implements HelperCore {
 
   String _serializeField(FieldElement field, String accessExpression) {
     try {
-      return getHelperContext(field)
-          .serialize(field.type, accessExpression)
-          .toString();
+      return getHelperContext(field).serialize(field.type, accessExpression).toString();
     } on UnsupportedTypeError catch (e) {
       throw createInvalidGenerationError('toJson', field, e);
+    }
+  }
+
+  void _writeSafe(StringBuffer buffer, String mapName, _FieldNode root, List<String> currentPath) {
+    if (root.fields.isNotEmpty) {
+      for (final field in root.fields) {
+        var safeFieldAccess = _fieldAccess(field);
+        if (safeFieldAccess == generatedLocalVarName || safeFieldAccess == toJsonMapHelperName) {
+          safeFieldAccess = 'this.$safeFieldAccess';
+        }
+        final nullCheck = !_writeJsonValueNaive(field);
+        var accessor = _serializeField(field, safeFieldAccess);
+        if (nullCheck) {
+          buffer
+            ..writeln('{')
+            ..writeln('// ignore: non_constant_identifier_names')
+            ..writeln('final __jsonNullCheck__ = $accessor;')
+            ..writeln('if (__jsonNullCheck__ != null) {');
+          accessor = '__jsonNullCheck__';
+        }
+
+        buffer.write('$mapName');
+        for (final path in currentPath) {
+          buffer.writeln(".putIfAbsent('$path', () => <String,dynamic>{})");
+        }
+        buffer.writeln(".putIfAbsent('${root.path}', () => <String,dynamic>{})");
+        buffer.writeln('[${safeNameAccess(field)}] = $accessor;');
+
+        if (nullCheck) {
+          buffer..writeln('}')..writeln('}');
+        }
+      }
+    }
+    for (final child in root.childPaths) {
+      _writeSafe(buffer, mapName, child, [...currentPath, root.path]);
     }
   }
 
@@ -150,7 +215,7 @@ abstract class EncodeHelper implements HelperCore {
             null;
   }
 
-  List<String> _buildPath(FieldElement field){
+  List<String> _buildPath(FieldElement field) {
     final jsonKeyPath = jsonKeyFor(field).path;
     final configPath = config.path;
 
@@ -159,9 +224,38 @@ abstract class EncodeHelper implements HelperCore {
     if (configPath != null && configPath.isNotEmpty) {
       parts.addAll(configPath.split('/'));
     }
-    if (jsonKeyPath != null && jsonKeyPath.isNotEmpty){
+    if (jsonKeyPath != null && jsonKeyPath.isNotEmpty) {
       parts.addAll(jsonKeyPath.split('/'));
     }
     return parts;
+  }
+}
+
+/// Helper class for creating tree of nodes that belong together (by path)
+class _FieldNode {
+  final String path;
+  final List<FieldElement> fields = [];
+  final List<_FieldNode> childPaths = [];
+
+  _FieldNode(this.path);
+
+  _FieldNode getOrAddChild(String path) {
+    return childPaths.singleWhere((item) => item.path == path, orElse: () {
+      final child = _FieldNode(path);
+      childPaths.add(child);
+      return child;
+    });
+  }
+
+  void addField(FieldElement element) {
+    fields.add(element);
+  }
+
+  Iterable<FieldElement> enumerateFields() {
+    final fieldItems = [...fields];
+    for (final child in childPaths) {
+      fieldItems.addAll(child.enumerateFields());
+    }
+    return fieldItems;
   }
 }
