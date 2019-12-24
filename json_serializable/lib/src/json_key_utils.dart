@@ -157,6 +157,7 @@ JsonKey _from(FieldElement element, JsonSerializable classAnnotation) {
     ignore: obj.getField('ignore').toBoolValue(),
     includeIfNull: obj.getField('includeIfNull').toBoolValue(),
     name: obj.getField('name').toStringValue(),
+    path: obj.getField('path').toStringValue(),
     nullable: obj.getField('nullable').toBoolValue(),
     required: obj.getField('required').toBoolValue(),
     unknownEnumValue: _annotationValue('unknownEnumValue', mustBeEnum: true),
@@ -171,6 +172,7 @@ JsonKey _populateJsonKey(
   bool ignore,
   bool includeIfNull,
   String name,
+  String path,
   bool nullable,
   bool required,
   Object unknownEnumValue,
@@ -191,6 +193,7 @@ JsonKey _populateJsonKey(
     includeIfNull: _includeIfNull(
         includeIfNull, disallowNullValue, classAnnotation.includeIfNull),
     name: _encodedFieldName(classAnnotation, name, element),
+    path: path,
     nullable: nullable ?? classAnnotation.nullable,
     required: required ?? false,
     unknownEnumValue: unknownEnumValue,

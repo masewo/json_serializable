@@ -30,6 +30,14 @@ enum FieldRename {
   fieldRename: FieldRename.snake,
 )
 class JsonSerializable {
+  /// Defines the path where your root object is located
+  ///
+  /// This will reduce the code size because you do not have to create all
+  /// the objects normally needed for parsing to your object.
+  ///
+  /// If `null`, no extra path will be added.
+  final String path;
+
   /// If `true`, [Map] types are *not* assumed to be [Map<String, dynamic>]
   /// – which is the default type of [Map] instances return by JSON decode in
   /// `dart:convert`.
@@ -141,6 +149,7 @@ class JsonSerializable {
 
   /// Creates a new [JsonSerializable] instance.
   const JsonSerializable({
+    this.path,
     this.anyMap,
     this.checked,
     this.createFactory,
@@ -153,12 +162,12 @@ class JsonSerializable {
     this.nullable,
   });
 
-  factory JsonSerializable.fromJson(Map<String, dynamic> json) =>
-      _$JsonSerializableFromJson(json);
+  factory JsonSerializable.fromJson(Map<String, dynamic> json) => _$JsonSerializableFromJson(json);
 
   /// An instance of [JsonSerializable] with all fields set to their default
   /// values.
   static const defaults = JsonSerializable(
+    path: null,
     anyMap: false,
     checked: false,
     createFactory: true,
@@ -177,12 +186,12 @@ class JsonSerializable {
   /// Otherwise, the returned value has the default value as defined in
   /// [defaults].
   JsonSerializable withDefaults() => JsonSerializable(
+        path: path ?? defaults.path,
         anyMap: anyMap ?? defaults.anyMap,
         checked: checked ?? defaults.checked,
         createFactory: createFactory ?? defaults.createFactory,
         createToJson: createToJson ?? defaults.createToJson,
-        disallowUnrecognizedKeys:
-            disallowUnrecognizedKeys ?? defaults.disallowUnrecognizedKeys,
+        disallowUnrecognizedKeys: disallowUnrecognizedKeys ?? defaults.disallowUnrecognizedKeys,
         explicitToJson: explicitToJson ?? defaults.explicitToJson,
         fieldRename: fieldRename ?? defaults.fieldRename,
         ignoreUnannotated: ignoreUnannotated ?? defaults.ignoreUnannotated,

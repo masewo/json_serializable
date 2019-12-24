@@ -73,6 +73,7 @@ T enumValueForDartObject<T>(
 /// Return an instance of [JsonSerializable] corresponding to a the provided
 /// [reader].
 JsonSerializable _valueForAnnotation(ConstantReader reader) => JsonSerializable(
+      path:reader.read('path').literalValue as String,
       anyMap: reader.read('anyMap').literalValue as bool,
       checked: reader.read('checked').literalValue as bool,
       createFactory: reader.read('createFactory').literalValue as bool,
@@ -95,6 +96,7 @@ JsonSerializable mergeConfig(JsonSerializable config, ConstantReader reader) {
   final annotation = _valueForAnnotation(reader);
 
   return JsonSerializable(
+    path: annotation.path ?? config.path,
     anyMap: annotation.anyMap ?? config.anyMap,
     checked: annotation.checked ?? config.checked,
     createFactory: annotation.createFactory ?? config.createFactory,

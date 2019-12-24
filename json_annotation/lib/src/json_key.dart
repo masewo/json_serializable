@@ -64,6 +64,14 @@ class JsonKey {
   /// If `null`, the field name is used.
   final String name;
 
+  /// Defines the path where this object is located
+  ///
+  /// This will reduce the code size because you do not have to create all
+  /// the objects normally needed for parsing to your object.
+  ///
+  /// If `null`, no extra path will be added.
+  final String path;
+
   /// When `true`, `null` fields are handled gracefully when encoding to JSON
   /// and when decoding `null` and nonexistent values from JSON.
   ///
@@ -113,6 +121,7 @@ class JsonKey {
     this.ignore,
     this.includeIfNull,
     this.name,
+    this.path,
     this.nullable,
     this.required,
     this.toJson,

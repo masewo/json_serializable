@@ -9,6 +9,7 @@ part of 'json_serializable.dart';
 JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) {
   return $checkedNew('JsonSerializable', json, () {
     $checkKeys(json, allowedKeys: const [
+      'path',
       'any_map',
       'checked',
       'create_factory',
@@ -18,9 +19,10 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) {
       'field_rename',
       'ignore_unannotated',
       'include_if_null',
-      'nullable',
+      'nullable'
     ]);
     final val = JsonSerializable(
+      path: $checkedConvert(json, 'path', (v) => v as String),
       anyMap: $checkedConvert(json, 'any_map', (v) => v as bool),
       checked: $checkedConvert(json, 'checked', (v) => v as bool),
       createFactory: $checkedConvert(json, 'create_factory', (v) => v as bool),
@@ -45,12 +47,13 @@ JsonSerializable _$JsonSerializableFromJson(Map<String, dynamic> json) {
     'explicitToJson': 'explicit_to_json',
     'fieldRename': 'field_rename',
     'ignoreUnannotated': 'ignore_unannotated',
-    'includeIfNull': 'include_if_null',
+    'includeIfNull': 'include_if_null'
   });
 }
 
 Map<String, dynamic> _$JsonSerializableToJson(JsonSerializable instance) =>
     <String, dynamic>{
+      'path': instance.path,
       'any_map': instance.anyMap,
       'checked': instance.checked,
       'create_factory': instance.createFactory,
@@ -63,29 +66,41 @@ Map<String, dynamic> _$JsonSerializableToJson(JsonSerializable instance) =>
       'nullable': instance.nullable,
     };
 
-T _$enumDecode<T>(Map<T, dynamic> enumValues, dynamic source) {
+T _$enumDecode<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
   if (source == null) {
     throw ArgumentError('A value must be provided. Supported values: '
         '${enumValues.values.join(', ')}');
   }
-  return enumValues.entries
-      .singleWhere((e) => e.value == source,
-          orElse: () => throw ArgumentError(
-              '`$source` is not one of the supported values: '
-              '${enumValues.values.join(', ')}'))
-      .key;
+
+  final value = enumValues.entries
+      .singleWhere((e) => e.value == source, orElse: () => null)
+      ?.key;
+
+  if (value == null && unknownValue == null) {
+    throw ArgumentError('`$source` is not one of the supported values: '
+        '${enumValues.values.join(', ')}');
+  }
+  return value ?? unknownValue;
 }
 
-T _$enumDecodeNullable<T>(Map<T, dynamic> enumValues, dynamic source) {
+T _$enumDecodeNullable<T>(
+  Map<T, dynamic> enumValues,
+  dynamic source, {
+  T unknownValue,
+}) {
   if (source == null) {
     return null;
   }
-  return _$enumDecode<T>(enumValues, source);
+  return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
 }
 
-const _$FieldRenameEnumMap = <FieldRename, dynamic>{
+const _$FieldRenameEnumMap = {
   FieldRename.none: 'none',
   FieldRename.kebab: 'kebab',
   FieldRename.snake: 'snake',
-  FieldRename.pascal: 'pascal'
+  FieldRename.pascal: 'pascal',
 };

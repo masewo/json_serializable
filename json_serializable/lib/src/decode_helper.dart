@@ -180,7 +180,7 @@ abstract class DecodeHelper implements HelperCore {
             'should only be true if `_generator.checked` is true.');
 
         value = contextHelper
-            .deserialize(targetType, 'json[$jsonKeyName]')
+            .deserialize(targetType, _accessorForField(field))
             .toString();
       }
     } on UnsupportedTypeError catch (e) {
@@ -208,6 +208,34 @@ abstract class DecodeHelper implements HelperCore {
       value = '$value ?? $defaultValue';
     }
     return value;
+  }
+
+  String _accessorForField(FieldElement field) {
+    final jsonKeyName = safeNameAccess(field);
+    final path = _buildPath(field);
+
+    var accessor = 'json';
+    if (path != null) {
+      for (final part in path) {
+        accessor += "['$part']";
+      }
+    }
+    return '$accessor[$jsonKeyName]';
+  }
+
+  List<String> _buildPath(FieldElement field){
+    final jsonKeyPath = jsonKeyFor(field).path;
+    final configPath = config.path;
+
+    if (configPath == null && jsonKeyPath == null) return null;
+    final parts = List<String>();
+    if (configPath != null && configPath.isNotEmpty) {
+      parts.addAll(configPath.split('/'));
+    }
+    if (jsonKeyPath != null && jsonKeyPath.isNotEmpty){
+      parts.addAll(jsonKeyPath.split('/'));
+    }
+    return parts;
   }
 }
 

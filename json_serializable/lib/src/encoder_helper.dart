@@ -40,9 +40,22 @@ abstract class EncodeHelper implements HelperCore {
 
     buffer.writeAll(fields.map((field) {
       final access = _fieldAccess(field);
-      final value =
-          '${safeNameAccess(field)}: ${_serializeField(field, access)}';
-      return '        $value,\n';
+      final path = _buildPath(field);
+      if (path == null || path.isEmpty) {
+        final value =
+            '${safeNameAccess(field)}: ${_serializeField(field, access)}';
+        return '        $value,\n';
+      } else {
+        StringBuffer pathBuffer = StringBuffer();
+        for (final pathEntry in path) {
+          pathBuffer.writeln("'$pathEntry': {");
+        }
+        pathBuffer.writeln('${safeNameAccess(field)}: ${_serializeField(field, access)},');
+        for (final pathEntry in path) {
+          pathBuffer.writeln("},");
+        }
+        return pathBuffer.toString();
+      }
     }));
 
     buffer.writeln('};');
@@ -135,5 +148,20 @@ abstract class EncodeHelper implements HelperCore {
         const JsonConverterHelper()
                 .serialize(field.type, 'test', helperContext) !=
             null;
+  }
+
+  List<String> _buildPath(FieldElement field){
+    final jsonKeyPath = jsonKeyFor(field).path;
+    final configPath = config.path;
+
+    if (configPath == null && jsonKeyPath == null) return null;
+    final parts = List<String>();
+    if (configPath != null && configPath.isNotEmpty) {
+      parts.addAll(configPath.split('/'));
+    }
+    if (jsonKeyPath != null && jsonKeyPath.isNotEmpty){
+      parts.addAll(jsonKeyPath.split('/'));
+    }
+    return parts;
   }
 }
