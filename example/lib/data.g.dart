@@ -7,22 +7,26 @@ part of 'data.dart';
 // **************************************************************************
 
 Data _$DataFromJson(Map<String, dynamic> json) {
+  dynamic _safeMapAccess(List<String> path) {
+    var element = json;
+    for (final pathElement in path) {
+      element = element[pathElement] as Map<String, dynamic>;
+      if (element == null) break;
+    }
+    return element;
+  }
+
   return Data(
-    id: json['glossary']['GlossDiv']['GlossList']['GlossEntry']['ID'] as String,
+    id: _safeMapAccess(['glossary' 'GlossDiv' 'GlossList' 'GlossEntry' 'ID'])
+        as String,
     description: json['glossary']['description'] as String,
   );
 }
 
 Map<String, dynamic> _$DataToJson(Data instance) {
   final val = <String, dynamic>{};
-  {
-// ignore: non_constant_identifier_names
-    final __jsonNullCheck__ = instance.description;
-    if (__jsonNullCheck__ != null) {
-      val.putIfAbsent('glossary', () => <String, dynamic>{})['description'] =
-          __jsonNullCheck__;
-    }
-  }
+  val.putIfAbsent('glossary', () => <String, dynamic>{})['description'] =
+      instance.description;
   {
 // ignore: non_constant_identifier_names
     final __jsonNullCheck__ = instance.id;

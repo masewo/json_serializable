@@ -4,7 +4,7 @@ part 'data.g.dart';
 
 @JsonSerializable(path: 'glossary', includeIfNull: false)
 class Data {
-  @JsonKey(name:'description', nullable: true)
+  @JsonKey(name:'description', nullable: false)
   final String description;
   @JsonKey(path: 'GlossDiv/GlossList/GlossEntry', name: 'ID', nullable: true)
   final String id;

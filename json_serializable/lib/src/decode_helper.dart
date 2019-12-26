@@ -32,6 +32,17 @@ abstract class DecodeHelper implements HelperCore {
         '${prefix}FromJson${genericClassArgumentsImpl(true)}'
         '($mapType json) {\n');
 
+    if (accessibleFields.values.any(_hasPath)) {
+      _buffer.writeln('dynamic _safeMapAccess(List<String> path) {');
+      _buffer.writeln('var element = json;');
+      _buffer.writeln('for (final pathElement in path) {');
+      _buffer.writeln('  element = element[pathElement] as Map<String, dynamic>;');
+      _buffer.writeln('  if (element == null) break;');
+      _buffer.writeln('}');
+      _buffer.writeln('return element;');
+      _buffer.writeln('}');
+    }
+
     String deserializeFun(String paramOrFieldName,
             {ParameterElement ctorParam}) =>
         _deserializeForField(accessibleFields[paramOrFieldName],
@@ -214,13 +225,28 @@ abstract class DecodeHelper implements HelperCore {
     final jsonKeyName = safeNameAccess(field);
     final path = _buildPath(field);
 
-    var accessor = 'json';
-    if (path != null) {
-      for (final part in path) {
-        accessor += "['$part']";
-      }
+    if (path == null || path.isEmpty) {
+      return 'json[$jsonKeyName]';
     }
-    return '$accessor[$jsonKeyName]';
+    final jsonKey = jsonKeyFor(field);
+    if (jsonKey.nullable == false) {
+      final builder = StringBuffer('json');
+      for (final part in path) {
+        builder.write("['$part']");
+      }
+      builder.write('[$jsonKeyName]');
+
+      return builder.toString();
+    }
+
+    final builder = StringBuffer('_safeMapAccess([');
+    for (final part in path) {
+      builder.write("'$part'");
+    }
+    builder.write('$jsonKeyName');
+    builder.write('])');
+
+    return builder.toString();
   }
 
   List<String> _buildPath(FieldElement field){
@@ -228,7 +254,7 @@ abstract class DecodeHelper implements HelperCore {
     final configPath = config.path;
 
     if (configPath == null && jsonKeyPath == null) return null;
-    final parts = List<String>();
+    final parts = <String>[];
     if (configPath != null && configPath.isNotEmpty) {
       parts.addAll(configPath.split('/'));
     }
@@ -237,6 +263,12 @@ abstract class DecodeHelper implements HelperCore {
     }
     return parts;
   }
+
+  bool _hasPath(FieldElement element) {
+    final path = _buildPath(element);
+    return path != null && path.isNotEmpty;
+  }
+
 }
 
 /// [availableConstructorParameters] is checked to see if it is available. If
