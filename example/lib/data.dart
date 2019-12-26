@@ -2,9 +2,9 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'data.g.dart';
 
-@JsonSerializable(path: 'glossary', includeIfNull: false)
+@JsonSerializable(includeIfNull: false)
 class Data {
-  @JsonKey(name:'description', nullable: false)
+  @JsonKey(name:'description', disallowNullValue: true)
   final String description;
   @JsonKey(path: 'GlossDiv/GlossList/GlossEntry', name: 'ID', nullable: true)
   final String id;
