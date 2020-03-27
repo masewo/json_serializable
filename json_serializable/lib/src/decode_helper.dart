@@ -33,9 +33,9 @@ abstract class DecodeHelper implements HelperCore {
 
     if (accessibleFields.values.any(_hasNullablePath) && !config.checked) {
       _buffer.writeln('''  dynamic _safeMapAccess(List<String> path) {
-    var element = json;
+    dynamic element = json;
     for (final pathElement in path) {
-      element = element[pathElement] as $mapType;
+      element = element[pathElement];
       if (element == null) break;
     }
     return element;
@@ -211,7 +211,7 @@ abstract class DecodeHelper implements HelperCore {
 
     final builder = StringBuffer('_safeMapAccess([');
     for (final part in path) {
-      builder.write("'$part'");
+      builder.write("'$part',");
     }
     builder.write('$jsonKeyName');
     builder.write('])');
