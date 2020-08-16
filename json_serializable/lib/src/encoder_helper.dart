@@ -130,12 +130,12 @@ abstract class EncodeHelper implements HelperCore {
           // close the still-open map literal
           buffer
             ..writeln('    };')
-            ..writeln()
+            ..writeln();
 
             directWrite = false;
           // write the helper to be used by all following null-excluding
           // fields
-          ..writeln('''
+          buffer.writeln('''
     void $toJsonMapHelperName(String key, dynamic value) {
       if (value != null) {
         $generatedLocalVarName[key] = value;

@@ -174,7 +174,7 @@ JsonKey _from(FieldElement element, JsonSerializable classAnnotation) {
     ignore: obj.read('ignore').literalValue as bool,
     includeIfNull: obj.read('includeIfNull').literalValue as bool,
     name: obj.read('name').literalValue as String,
-    path: obj.getField('path').toStringValue(),
+    path: obj.read('path').literalValue as String,
     nullable: obj.read('nullable').literalValue as bool,
     required: obj.read('required').literalValue as bool,
     unknownEnumValue: _annotationValue('unknownEnumValue', mustBeEnum: true),
