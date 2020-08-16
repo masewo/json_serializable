@@ -32,7 +32,7 @@ abstract class DecodeHelper implements HelperCore {
         '($mapType json) {\n');
 
     if (accessibleFields.values.any(_hasNullablePath) && !config.checked) {
-      _buffer.writeln('''  dynamic _safeMapAccess(List<String> path) {
+      buffer.writeln('''  dynamic _safeMapAccess(List<String> path) {
     dynamic element = json;
     for (final pathElement in path) {
       element = element[pathElement];
