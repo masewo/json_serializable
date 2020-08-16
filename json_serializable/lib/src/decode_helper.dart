@@ -19,7 +19,7 @@ class CreateFactoryResult {
 }
 
 abstract class DecodeHelper implements HelperCore {
-
+  final StringBuffer _buffer = StringBuffer();
 
   CreateFactoryResult createFactory(Map<String, FieldElement> accessibleFields, Map<String, String> unavailableReasons,
   ) {
