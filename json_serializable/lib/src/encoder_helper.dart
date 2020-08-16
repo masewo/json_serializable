@@ -19,8 +19,8 @@ abstract class EncodeHelper implements HelperCore {
     final buffer = StringBuffer();
 
     final functionName = '${prefix}ToJson${genericClassArgumentsImpl(true)}';
-    buffer.write('Map<String, dynamic> $functionName'
-        '($targetClassReference $_toJsonParamName) ');
+    buffer.write('Map<String, dynamic> '
+        '$functionName($targetClassReference $_toJsonParamName) ');
 
     final writeNaive = accessibleFields.every(_writeJsonValueNaive);
 
@@ -50,7 +50,10 @@ abstract class EncodeHelper implements HelperCore {
     yield buffer.toString();
   }
 
-  void _writeToJsonSimple(StringBuffer buffer, _FieldNode root) {
+  void _writeToJsonSimple(
+      StringBuffer buffer,
+      _FieldNode root,
+      Iterable<FieldElement> fields) {
     buffer.writeln('=> <String, dynamic>{');
 
     _writeFieldNaive(buffer, root);
@@ -90,7 +93,10 @@ abstract class EncodeHelper implements HelperCore {
 
   static const _toJsonParamName = 'instance';
 
-  void _writeToJsonWithNullChecks(StringBuffer buffer, _FieldNode root) {
+  void _writeToJsonWithNullChecks(
+      StringBuffer buffer,
+      _FieldNode root,
+      Iterable<FieldElement> fields) {
     buffer.writeln('{');
 
     buffer.writeln('    final $generatedLocalVarName = <String, dynamic>{');
@@ -122,13 +128,14 @@ abstract class EncodeHelper implements HelperCore {
       } else {
         if (directWrite) {
           // close the still-open map literal
-          buffer.writeln('    };');
-          buffer.writeln();
+          buffer
+            ..writeln('    };')
+            ..writeln()
 
-          directWrite = false;
+            directWrite = false;
           // write the helper to be used by all following null-excluding
           // fields
-          buffer.writeln('''
+          ..writeln('''
     void $toJsonMapHelperName(String key, dynamic value) {
       if (value != null) {
         $generatedLocalVarName[key] = value;
@@ -148,14 +155,14 @@ abstract class EncodeHelper implements HelperCore {
       _writeSafe(buffer, generatedLocalVarName, child, []);
     }
 
-    buffer.writeln('    return $generatedLocalVarName;');
-    buffer.writeln('  }');
+    buffer..writeln('    return $generatedLocalVarName;')..writeln('  }');
   }
 
   String _serializeField(FieldElement field, String accessExpression) {
     try {
       return getHelperContext(field).serialize(field.type, accessExpression).toString();
-    } on UnsupportedTypeError catch (e) {
+    } on UnsupportedTypeError catch (e) // ignore: avoid_catching_errors
+    {
       throw createInvalidGenerationError('toJson', field, e);
     }
   }

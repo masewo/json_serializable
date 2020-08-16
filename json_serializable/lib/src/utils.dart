@@ -11,17 +11,20 @@ import 'package:source_gen/source_gen.dart';
 
 import 'helper_core.dart';
 
-final _jsonKeyChecker = const TypeChecker.fromRuntime(JsonKey);
+const _jsonKeyChecker = TypeChecker.fromRuntime(JsonKey);
 
-DartObject jsonKeyAnnotation(FieldElement element) =>
-    _jsonKeyChecker.firstAnnotationOfExact(element) ??
+DartObject _jsonKeyAnnotation(FieldElement element) =>
+    _jsonKeyChecker.firstAnnotationOf(element) ??
     (element.getter == null
         ? null
-        : _jsonKeyChecker.firstAnnotationOfExact(element.getter));
+        : _jsonKeyChecker.firstAnnotationOf(element.getter));
+
+ConstantReader jsonKeyAnnotation(FieldElement element) =>
+    ConstantReader(_jsonKeyAnnotation(element));
 
 /// Returns `true` if [element] is annotated with [JsonKey].
 bool hasJsonKeyAnnotation(FieldElement element) =>
-    jsonKeyAnnotation(element) != null;
+    _jsonKeyAnnotation(element) != null;
 
 final _upperCase = RegExp('[A-Z]');
 
@@ -63,7 +66,10 @@ FieldRename _fromDartObject(ConstantReader reader) => reader.isNull
       );
 
 T enumValueForDartObject<T>(
-        DartObject source, List<T> items, String Function(T) name) =>
+  DartObject source,
+  List<T> items,
+  String Function(T) name,
+) =>
     items.singleWhere(
       (v) => source.getField(name(v)) != null,
       // TODO: remove once pkg:analyzer < 0.35.0 is no longer supported
