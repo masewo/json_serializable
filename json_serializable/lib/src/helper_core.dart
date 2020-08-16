@@ -55,15 +55,21 @@ abstract class HelperCore {
 }
 
 InvalidGenerationSourceError createInvalidGenerationError(
-    String targetMember, FieldElement field, UnsupportedTypeError e) {
+  String targetMember,
+  FieldElement field,
+  UnsupportedTypeError e,
+) {
   var message = 'Could not generate `$targetMember` code for `${field.name}`';
   if (field.type != e.type) {
     message = '$message because of type `${typeToCode(e.type)}`';
   }
   message = '$message.\n${e.reason}';
 
-  final todo = 'Make sure all of the types are serializable.';
-  return InvalidGenerationSourceError(message, todo: todo, element: field);
+  return InvalidGenerationSourceError(
+    message,
+    todo: 'Make sure all of the types are serializable.',
+    element: field,
+  );
 }
 
 /// Returns a [String] representing the type arguments that exist on

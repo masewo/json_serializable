@@ -1,3 +1,24 @@
+## 3.4.1-dev
+
+- Support properties where the getter is defined in a class with a corresponding
+  setter in a super type.
+
+## 3.4.0
+
+- `JsonKey.defaultValue`
+  - Added support for `double.infinity`, `double.negativeInfinity`, and
+  `double.nan`.
+  - Added support for `Set` literals.
+- Require at least Dart `2.7.0`.
+
+## 3.3.0
+
+- Add support for fields annotated subclasses of `JsonKey`.
+- Export the following `TypeHelper` implementations and interfaces in
+  `package:json_serializable/type_helper.dart`:
+  - `DurationHelper`
+  - `TypeHelperContextWithConfig`
+
 ## 3.2.5
 
 - Fix lint affecting `pub.dev` score.
