@@ -41,10 +41,10 @@ abstract class EncodeHelper implements HelperCore {
 
     if (writeNaive) {
       // write simple `toJson` method that includes all keys...
-      _writeToJsonSimple(buffer, root);
+      _writeToJsonSimple(buffer, root, accessibleFields);
     } else {
       // At least one field should be excluded if null
-      _writeToJsonWithNullChecks(buffer, root);
+      _writeToJsonWithNullChecks(buffer, root, accessibleFields);
     }
 
     yield buffer.toString();
