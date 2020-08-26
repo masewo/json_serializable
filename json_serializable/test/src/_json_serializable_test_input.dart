@@ -29,8 +29,6 @@ part 'to_from_json_test_input.dart';
 
 part 'unknown_enum_value_test_input.dart';
 
-part 'unknown_type_test_input.dart';
-
 @ShouldThrow('Generator cannot target `theAnswer`.',
     todo: 'Remove the JsonSerializable annotation from `theAnswer`.')
 @JsonSerializable()
@@ -39,7 +37,7 @@ const theAnswer = 42;
 @ShouldThrow('Generator cannot target `annotatedMethod`.',
     todo: 'Remove the JsonSerializable annotation from `annotatedMethod`.')
 @JsonSerializable()
-void annotatedMethod() => null;
+Object annotatedMethod() => null;
 
 @ShouldGenerate(
   r'''
@@ -56,7 +54,7 @@ Map<String, dynamic> _$OnlyStaticMembersToJson(OnlyStaticMembers instance) =>
 class OnlyStaticMembers {
   // To ensure static members are not considered for serialization.
   static const answer = 42;
-  static final reason = 42;
+  static final reason = DateTime.now();
 
   static int get understand => 42;
 }
@@ -259,7 +257,7 @@ class IncludeIfNullOverride {
   String str;
 }
 
-// https://github.com/dart-lang/json_serializable/issues/7 regression
+// https://github.com/google/json_serializable.dart/issues/7 regression
 @ShouldThrow(
   'The class `NoCtorClass` has no default constructor.',
   configurations: ['default'],
@@ -481,4 +479,52 @@ class IgnoreUnannotated {
   int annotated;
 
   int unannotated;
+}
+
+@ShouldGenerate(
+  r'''
+SubclassedJsonKey _$SubclassedJsonKeyFromJson(Map<String, dynamic> json) {
+  return SubclassedJsonKey()..annotatedWithSubclass = json['bob'] as int;
+}
+
+Map<String, dynamic> _$SubclassedJsonKeyToJson(SubclassedJsonKey instance) =>
+    <String, dynamic>{
+      'bob': instance.annotatedWithSubclass,
+    };
+''',
+)
+@JsonSerializable(ignoreUnannotated: true)
+class SubclassedJsonKey {
+  @MyJsonKey()
+  int annotatedWithSubclass;
+}
+
+class MyJsonKey extends JsonKey {
+  const MyJsonKey() : super(name: 'bob');
+}
+
+@ShouldGenerate(
+  r'''
+OverrideGetterExampleI613 _$OverrideGetterExampleI613FromJson(
+    Map<String, dynamic> json) {
+  return OverrideGetterExampleI613()..id = json['id'] as String;
+}
+
+Map<String, dynamic> _$OverrideGetterExampleI613ToJson(
+        OverrideGetterExampleI613 instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+    };
+''',
+)
+@JsonSerializable(nullable: false)
+class OverrideGetterExampleI613 extends OverrideGetterExampleI613Super {
+  @override
+  String get id => throw UnimplementedError();
+}
+
+class OverrideGetterExampleI613Super {
+  set id(String value) => throw UnimplementedError();
+
+  String get id => throw UnimplementedError();
 }

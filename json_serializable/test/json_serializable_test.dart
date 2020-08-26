@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:source_gen_test/source_gen_test.dart';
 import 'package:test/test.dart';
 
-void main() async {
+Future<void> main() async {
   initializeBuildLogTracking();
   final reader = await initializeLibraryReaderForDirectory(
     p.join('test', 'src'),
@@ -29,6 +29,7 @@ const _expectedAnnotatedTests = [
   'BadOneNamed',
   'BadToFuncReturnType',
   'BadTwoRequiredPositional',
+  'DefaultDoubleConstants',
   'DefaultWithConstObject',
   'DefaultWithDisallowNullRequiredClass',
   'DefaultWithFunction',
@@ -81,9 +82,11 @@ const _expectedAnnotatedTests = [
   'OkayOneNormalOptionalPositional',
   'OkayOnlyOptionalPositional',
   'OnlyStaticMembers',
+  'OverrideGetterExampleI613',
   'PrivateFieldCtorClass',
   'PropInMixinI448Regression',
   'SetSupport',
+  'SubclassedJsonKey',
   'SubType',
   'SubTypeWithAnnotatedFieldOverrideExtends',
   'SubTypeWithAnnotatedFieldOverrideExtendsWithOverrides',
@@ -91,13 +94,9 @@ const _expectedAnnotatedTests = [
   'theAnswer',
   'ToJsonNullableFalseIncludeIfNullFalse',
   'TypedConvertMethods',
-  'UnknownCtorParamType',
   'UnknownEnumValue',
   'UnknownEnumValueNotEnumValue',
   'UnknownEnumValueNotEnumField',
-  'UnknownFieldType',
-  'UnknownFieldTypeToJsonOnly',
-  'UnknownFieldTypeWithConvert',
   'UnsupportedDateTimeField',
   'UnsupportedDurationField',
   'UnsupportedListField',

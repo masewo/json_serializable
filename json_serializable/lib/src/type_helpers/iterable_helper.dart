@@ -14,8 +14,11 @@ class IterableHelper extends TypeHelper<TypeHelperContextWithConfig> {
   const IterableHelper();
 
   @override
-  String serialize(DartType targetType, String expression,
-      TypeHelperContextWithConfig context) {
+  String serialize(
+    DartType targetType,
+    String expression,
+    TypeHelperContextWithConfig context,
+  ) {
     if (!coreIterableTypeChecker.isAssignableFromType(targetType)) {
       return null;
     }
@@ -53,7 +56,10 @@ class IterableHelper extends TypeHelper<TypeHelperContextWithConfig> {
 
   @override
   String deserialize(
-      DartType targetType, String expression, TypeHelperContext context) {
+    DartType targetType,
+    String expression,
+    TypeHelperContext context,
+  ) {
     if (!(coreIterableTypeChecker.isExactlyType(targetType) ||
         _coreListChecker.isExactlyType(targetType) ||
         _coreSetChecker.isExactlyType(targetType))) {
@@ -92,5 +98,5 @@ class IterableHelper extends TypeHelper<TypeHelperContextWithConfig> {
   }
 }
 
-final _coreListChecker = const TypeChecker.fromUrl('dart:core#List');
-final _coreSetChecker = const TypeChecker.fromUrl('dart:core#Set');
+const _coreListChecker = TypeChecker.fromUrl('dart:core#List');
+const _coreSetChecker = TypeChecker.fromUrl('dart:core#Set');

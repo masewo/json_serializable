@@ -8,6 +8,21 @@ import 'package:example/json_converter_example.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('DateTime epoch', () {
+    const value = 42;
+
+    final epochDateTime = DateTime.fromMillisecondsSinceEpoch(value);
+    final instance = DateTimeExample(epochDateTime);
+    final json = _encode(instance);
+    expect(json, '''{
+ "when": $value
+}''');
+
+    final copy =
+        DateTimeExample.fromJson(jsonDecode(json) as Map<String, dynamic>);
+    expect(copy.when, epochDateTime);
+  });
+
   test('trivial case', () {
     final collection = GenericCollection<int>(
         page: 0, totalPages: 3, totalResults: 10, results: [1, 2, 3]);
@@ -54,15 +69,15 @@ void main() {
     expect(
         () => GenericCollection<CustomResult>.fromJson(
             jsonDecode(encoded) as Map<String, dynamic>),
-        _throwsCastSomething);
+        _throwsCastError);
     expect(
         () => GenericCollection<int>.fromJson(
             jsonDecode(encoded) as Map<String, dynamic>),
-        _throwsCastSomething);
+        _throwsCastError);
     expect(
         () => GenericCollection<String>.fromJson(
             jsonDecode(encoded) as Map<String, dynamic>),
-        _throwsCastSomething);
+        _throwsCastError);
 
     final collection2 =
         GenericCollection.fromJson(jsonDecode(encoded) as Map<String, dynamic>);
@@ -81,7 +96,8 @@ void main() {
   });
 }
 
-final _throwsCastSomething = throwsA(isA<CastError>());
+// ignore: deprecated_member_use
+final _throwsCastError = throwsA(isA<CastError>());
 
 String _encode(Object object) =>
     const JsonEncoder.withIndent(' ').convert(object);

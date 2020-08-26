@@ -1,4 +1,4 @@
-# See https://github.com/dart-lang/mono_repo for details
+# See https://github.com/google/mono_repo.dart for details on this file
 stages:
 - analyzer_and_format:
   - group:
@@ -8,4 +8,4 @@ stages:
   - group:
     - dartfmt
     - dartanalyzer: --fatal-warnings .
-    dart: [2.6.0]
+    dart: [2.7.0]
