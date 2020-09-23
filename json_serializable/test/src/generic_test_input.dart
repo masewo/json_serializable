@@ -4,6 +4,25 @@
 
 part of '_json_serializable_test_input.dart';
 
+@ShouldThrow(
+  r'''
+Could not generate `fromJson` code for `result` because of type `TResult` (type parameter).
+None of the provided `TypeHelper` instances support the defined type.
+To support type paramaters (generic types) you can:
+1) Use `JsonConverter`
+  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonConverter-class.html
+2) Use `JsonKey` fields `fromJson` and `toJson`
+  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/fromJson.html
+  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/toJson.html
+3) Set `JsonSerializable.genericArgumentFactories` to `true`
+  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonSerializable/genericArgumentFactories.html''',
+  element: 'result',
+)
+@JsonSerializable()
+class Issue713<TResult> {
+  List<TResult> result;
+}
+
 @ShouldGenerate(r'''
 GenericClass<T, S> _$GenericClassFromJson<T extends num, S>(
     Map<String, dynamic> json) {
@@ -48,3 +67,26 @@ class GenericClass<T extends num, S> {
 T _dataFromJson<T extends num>(Object input) => null;
 
 Object _dataToJson<T extends num>(T input) => null;
+
+@ShouldGenerate(
+  r'''
+GenericArgumentFactoriesFlagWithoutGenericType
+    _$GenericArgumentFactoriesFlagWithoutGenericTypeFromJson(
+        Map<String, dynamic> json) {
+  return GenericArgumentFactoriesFlagWithoutGenericType();
+}
+
+Map<String, dynamic> _$GenericArgumentFactoriesFlagWithoutGenericTypeToJson(
+        GenericArgumentFactoriesFlagWithoutGenericType instance) =>
+    <String, dynamic>{};
+''',
+  expectedLogItems: [
+    'The class `GenericArgumentFactoriesFlagWithoutGenericType` is annotated '
+        'with `JsonSerializable` field `genericArgumentFactories: true`. '
+        '`genericArgumentFactories: true` only affects classes with type '
+        'parameters. For classes without type parameters, the option is '
+        'ignored.',
+  ],
+)
+@JsonSerializable(genericArgumentFactories: true)
+class GenericArgumentFactoriesFlagWithoutGenericType {}
