@@ -1,3 +1,10 @@
+## 3.1.1
+
+- Avoid `null` values for `CheckedFromJsonException.message` by using 
+  `toString()` with unrecognized error types.
+- Added a helpful `UnrecognizedKeysException.toString()`.
+- Fixed doc comments for `JsonSerializable.genericArgumentFactories`.
+
 ## 3.1.0
 
 - Added `JsonSerializable.genericArgumentFactories` field. 

@@ -5,6 +5,7 @@
 import 'dart:collection';
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:json_serializable/src/helper_core.dart';
 import 'package:source_gen_test/annotations.dart';
 
 part 'checked_test_input.dart';
@@ -187,8 +188,10 @@ class SetSupport {
 }
 
 @ShouldThrow(
-  'Could not generate `toJson` code for `watch`.\n'
-  'None of the provided `TypeHelper` instances support the defined type.',
+  '''
+Could not generate `toJson` code for `watch`.
+To support the type `Stopwatch` you can:
+$converterOrKeyInstructions''',
   configurations: ['default'],
 )
 @JsonSerializable(createFactory: false)
@@ -197,8 +200,10 @@ class NoSerializeFieldType {
 }
 
 @ShouldThrow(
-  'Could not generate `fromJson` code for `watch`.\n'
-  'None of the provided `TypeHelper` instances support the defined type.',
+  '''
+Could not generate `fromJson` code for `watch`.
+To support the type `Stopwatch` you can:
+$converterOrKeyInstructions''',
   configurations: ['default'],
 )
 @JsonSerializable(createToJson: false)
