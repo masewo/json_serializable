@@ -46,14 +46,14 @@ class JsonSerializable {
   /// from other sources, such as `package:yaml`.
   ///
   /// *Note: in many cases the key values are still assumed to be [String]*.
-  final bool anyMap;
+  final bool? anyMap;
 
   /// If `true`, generated `fromJson` functions include extra checks to validate
   /// proper deserialization of types.
   ///
   /// If an exception is thrown during deserialization, a
   /// [CheckedFromJsonException] is thrown.
-  final bool checked;
+  final bool? checked;
 
   /// If `true` (the default), a private, static `_$ExampleFromJson` method
   /// is created in the generated part file.
@@ -68,7 +68,7 @@ class JsonSerializable {
   ///     _$ExampleFromJson(json);
   /// }
   /// ```
-  final bool createFactory;
+  final bool? createFactory;
 
   /// If `true` (the default), A top-level function is created that you can
   /// reference from your class.
@@ -79,14 +79,14 @@ class JsonSerializable {
   ///   Map<String, dynamic> toJson() => _$ExampleToJson(this);
   /// }
   /// ```
-  final bool createToJson;
+  final bool? createToJson;
 
   /// If `false` (the default), then the generated `FromJson` function will
   /// ignore unrecognized keys in the provided JSON [Map].
   ///
   /// If `true`, unrecognized keys will cause an [UnrecognizedKeysException] to
   /// be thrown.
-  final bool disallowUnrecognizedKeys;
+  final bool? disallowUnrecognizedKeys;
 
   /// If `true`, generated `toJson` methods will explicitly call `toJson` on
   /// nested objects.
@@ -106,7 +106,7 @@ class JsonSerializable {
   /// ```dart
   /// Map<String, dynamic> toJson() => {'child': child?.toJson()};
   /// ```
-  final bool explicitToJson;
+  final bool? explicitToJson;
 
   /// Defines the automatic naming strategy when converting class field names
   /// into JSON map keys.
@@ -118,7 +118,7 @@ class JsonSerializable {
   ///
   /// Note: the value for [JsonKey.name] takes precedence over this option for
   /// fields annotated with [JsonKey].
-  final FieldRename fieldRename;
+  final FieldRename? fieldRename;
 
   /// When `true` on classes with type parameters (generic types), extra
   /// "helper" parameters will be generated for `fromJson` and/or `toJson` to
@@ -156,20 +156,21 @@ class JsonSerializable {
   ///     };
   /// ```
   ///
-  /// Note: this option has no effect on classes class without type parameters.
-  /// A warning is printed in such cases.
+  /// Notes:
   ///
-  /// Note: if this option is set for all classes in a package via `build.yaml`
-  /// it is only applied to classes with type parameters – so no warning is
-  /// printed.
-  final bool genericArgumentFactories;
+  /// 1. This option has no effect on classes without type parameters.
+  ///    If used on such a class, a warning is echoed in the build log.
+  /// 1. If this option is set for all classes in a package via `build.yaml`
+  ///    it is only applied to classes with type parameters – so no warning is
+  ///    echoed.
+  final bool? genericArgumentFactories;
 
   /// When `true`, only fields annotated with [JsonKey] will have code
   /// generated.
   ///
   /// It will have the same effect as if those fields had been annotated with
   /// `@JsonKey(ignore: true)`.
-  final bool ignoreUnannotated;
+  final bool? ignoreUnannotated;
 
   /// Whether the generator should include fields with `null` values in the
   /// serialized output.
@@ -179,21 +180,12 @@ class JsonSerializable {
   ///
   /// If a field is annotated with `JsonKey` with a non-`null` value for
   /// `includeIfNull`, that value takes precedent.
-  final bool includeIfNull;
-
-  /// When `true` (the default), `null` fields are handled gracefully when
-  /// encoding to JSON and when decoding `null` and nonexistent values from
-  /// JSON.
-  ///
-  /// Setting to `false` eliminates `null` verification in the generated code,
-  /// which reduces the code size. Errors may be thrown at runtime if `null`
-  /// values are encountered, but the original class should also implement
-  /// `null` runtime validation if it's critical.
-  final bool nullable;
+  final bool? includeIfNull;
 
   /// Creates a new [JsonSerializable] instance.
   const JsonSerializable({
     this.path,
+    @Deprecated('Has no effect') bool? nullable,
     this.anyMap,
     this.checked,
     this.createFactory,
@@ -203,7 +195,6 @@ class JsonSerializable {
     this.fieldRename,
     this.ignoreUnannotated,
     this.includeIfNull,
-    this.nullable,
     this.genericArgumentFactories,
   });
 
@@ -222,7 +213,6 @@ class JsonSerializable {
     fieldRename: FieldRename.none,
     ignoreUnannotated: false,
     includeIfNull: true,
-    nullable: true,
     genericArgumentFactories: false,
   );
 
@@ -242,7 +232,6 @@ class JsonSerializable {
         fieldRename: fieldRename ?? defaults.fieldRename,
         ignoreUnannotated: ignoreUnannotated ?? defaults.ignoreUnannotated,
         includeIfNull: includeIfNull ?? defaults.includeIfNull,
-        nullable: nullable ?? defaults.nullable,
         genericArgumentFactories:
             genericArgumentFactories ?? defaults.genericArgumentFactories,
       );

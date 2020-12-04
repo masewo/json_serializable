@@ -1,3 +1,18 @@
+## 4.0.0-nullsafety.1
+
+- Generates null-safe code.
+  - The `nullable` field on `JsonKey` ignored. The nullability of a field is now 
+    determined by the Dart type system.
+- **BREAKING** `bool defaultProvided` arg added to `TypeHelper.deserialize`.
+  *Only applies to folks using `TypeHelper` directly.*
+
+## 3.5.1
+
+- Improved error messages for unsupported types.
+- `package:json_serializable/type_helper.dart`
+  - Made the third parameter to `UnsupportedTypeError` positional (optional).
+- Require `package:analyzer` `>=0.39.0 <0.42.0`.
+
 ## 3.5.0
 
 - Added support for populating generic helper functions for fields with generic

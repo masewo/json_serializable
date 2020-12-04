@@ -7,11 +7,13 @@
 /// `JsonKey.required` is `true` for any annotated fields.
 ///
 /// Should not be used directly.
-void $checkKeys(Map map,
-    {List<String> allowedKeys,
-    List<String> requiredKeys,
-    List<String> disallowNullValues}) {
-  if (map != null && allowedKeys != null) {
+void $checkKeys(
+  Map map, {
+  List<String>? allowedKeys,
+  List<String>? requiredKeys,
+  List<String>? disallowNullValues,
+}) {
+  if (allowedKeys != null) {
     final invalidKeys =
         map.keys.cast<String>().where((k) => !allowedKeys.contains(k)).toList();
     if (invalidKeys.isNotEmpty) {
@@ -27,10 +29,12 @@ void $checkKeys(Map map,
     }
   }
 
-  if (map != null && disallowNullValues != null) {
+  if (disallowNullValues != null) {
     final nullValuedKeys = map.entries
-        .where((entry) =>
-            disallowNullValues.contains(entry.key) && entry.value == null)
+        .where(
+          (entry) =>
+              disallowNullValues.contains(entry.key) && entry.value == null,
+        )
         .map((entry) => entry.key as String)
         .toList();
 
@@ -67,6 +71,9 @@ class UnrecognizedKeysException extends BadKeyException {
 
   UnrecognizedKeysException(this.unrecognizedKeys, Map map, this.allowedKeys)
       : super._(map);
+
+  @override
+  String toString() => message;
 }
 
 /// Exception thrown if there are missing required keys in a JSON map that was

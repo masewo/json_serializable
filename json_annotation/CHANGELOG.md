@@ -1,3 +1,17 @@
+## 4.0.0-nullsafety.0
+
+- Updated `$checkedConvert` helper to support null-safety.
+- Removed the `nullable` field on `JsonKey` – the constructor entry still
+  exists, but it's marked `@Deprecated`. The nullability of a field is now
+  determined by the Dart type system.
+
+## 3.1.1
+
+- Avoid `null` values for `CheckedFromJsonException.message` by using 
+  `toString()` with unrecognized error types.
+- Added a helpful `UnrecognizedKeysException.toString()`.
+- Fixed doc comments for `JsonSerializable.genericArgumentFactories`.
+
 ## 3.1.0
 
 - Added `JsonSerializable.genericArgumentFactories` field. 
