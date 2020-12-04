@@ -2,25 +2,22 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+// @dart=2.12
+
 part of '_json_serializable_test_input.dart';
 
 @ShouldThrow(
-  r'''
+  '''
 Could not generate `fromJson` code for `result` because of type `TResult` (type parameter).
-None of the provided `TypeHelper` instances support the defined type.
-To support type paramaters (generic types) you can:
-1) Use `JsonConverter`
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonConverter-class.html
-2) Use `JsonKey` fields `fromJson` and `toJson`
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/fromJson.html
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/toJson.html
-3) Set `JsonSerializable.genericArgumentFactories` to `true`
+To support type parameters (generic types) you can:
+$converterOrKeyInstructions
+* Set `JsonSerializable.genericArgumentFactories` to `true`
   https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonSerializable/genericArgumentFactories.html''',
   element: 'result',
 )
 @JsonSerializable()
 class Issue713<TResult> {
-  List<TResult> result;
+  List<TResult>? result;
 }
 
 @ShouldGenerate(r'''
@@ -47,26 +44,26 @@ Map<String, dynamic> _$GenericClassToJson<T extends num, S>(
 @JsonSerializable()
 class GenericClass<T extends num, S> {
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
-  Object fieldObject;
+  late Object fieldObject;
 
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
   dynamic fieldDynamic;
 
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
-  int fieldInt;
+  late int fieldInt;
 
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
-  T fieldT;
+  late T fieldT;
 
   @JsonKey(fromJson: _dataFromJson, toJson: _dataToJson)
-  S fieldS;
+  late S fieldS;
 
   GenericClass();
 }
 
-T _dataFromJson<T extends num>(Object input) => null;
+T _dataFromJson<T extends num>(Object? input) => throw UnimplementedError();
 
-Object _dataToJson<T extends num>(T input) => null;
+Object _dataToJson<T extends num>(T input) => throw UnimplementedError();
 
 @ShouldGenerate(
   r'''

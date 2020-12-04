@@ -8,6 +8,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 
+import 'constants.dart';
 import 'json_key_utils.dart';
 import 'type_helper.dart';
 import 'type_helper_ctx.dart';
@@ -51,42 +52,40 @@ abstract class HelperCore {
 
   @protected
   TypeHelperCtx getHelperContext(FieldElement field) =>
-      typeHelperContext(this, field, jsonKeyFor(field));
+      typeHelperContext(this, field);
 }
 
 InvalidGenerationSourceError createInvalidGenerationError(
   String targetMember,
   FieldElement field,
-  UnsupportedTypeError e,
+  UnsupportedTypeError error,
 ) {
   var message = 'Could not generate `$targetMember` code for `${field.name}`';
+
   String todo;
-
-  if (e.type is TypeParameterType) {
+  if (error.type is TypeParameterType) {
     message = '$message because of type '
-        '`${e.type.getDisplayString(withNullability: false)}` (type parameter)';
+        '`${error.type.getDisplayString(withNullability: false)}` (type parameter)';
 
-    todo = r'''
-To support type paramaters (generic types) you can:
-1) Use `JsonConverter`
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonConverter-class.html
-2) Use `JsonKey` fields `fromJson` and `toJson`
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/fromJson.html
-  https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonKey/toJson.html
-3) Set `JsonSerializable.genericArgumentFactories` to `true`
+    todo = '''
+To support type parameters (generic types) you can:
+$converterOrKeyInstructions
+* Set `JsonSerializable.genericArgumentFactories` to `true`
   https://pub.dev/documentation/json_annotation/latest/json_annotation/JsonSerializable/genericArgumentFactories.html''';
-  } else if (field.type != e.type) {
-    message = '$message because of type `${typeToCode(e.type)}`';
+  } else if (field.type != error.type) {
+    message = '$message because of type `${typeToCode(error.type)}`';
+  } else {
+    todo = '''
+To support the type `${error.type.element.name}` you can:
+$converterOrKeyInstructions''';
   }
 
-  final messageItems = [
-    '$message.',
-    e.reason,
-    if (todo != null) todo,
-  ];
-
   return InvalidGenerationSourceError(
-    messageItems.join('\n'),
+    [
+      '$message.',
+      if (error.reason != null) error.reason,
+      if (todo != null) todo,
+    ].join('\n'),
     element: field,
   );
 }
@@ -134,13 +133,17 @@ String genericClassArguments(ClassElement element, bool withConstraints) {
 /// types and locations of these files in code. Specifically, it supports
 /// only [InterfaceType]s, with optional type arguments that are also should
 /// be [InterfaceType]s.
-String typeToCode(DartType type) {
+String typeToCode(
+  DartType type, {
+  bool forceNullable = false,
+}) {
   if (type.isDynamic) {
     return 'dynamic';
   } else if (type is InterfaceType) {
     final typeArguments = type.typeArguments;
     if (typeArguments.isEmpty) {
-      return type.element.name;
+      final nullablePostfix = (type.isNullableType || forceNullable) ? '?' : '';
+      return '${type.element.name}$nullablePostfix';
     } else {
       final typeArgumentsCode = typeArguments.map(typeToCode).join(', ');
       return '${type.element.name}<$typeArgumentsCode>';
