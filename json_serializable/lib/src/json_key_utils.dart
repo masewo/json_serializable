@@ -216,7 +216,6 @@ JsonKey _populateJsonKey(
         includeIfNull, disallowNullValue, classAnnotation.includeIfNull),
     name: _encodedFieldName(classAnnotation, name, element),
     path: path,
-    nullable: nullable ?? classAnnotation.nullable,
     required: required ?? false,
     unknownEnumValue: unknownEnumValue,
   );

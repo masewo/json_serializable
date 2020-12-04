@@ -227,16 +227,6 @@ abstract class DecodeHelper implements HelperCore {
     if (path == null || path.isEmpty) {
       return 'json[$jsonKeyName]';
     }
-    final jsonKey = jsonKeyFor(field);
-    if (jsonKey.nullable == false) {
-      final builder = StringBuffer('json');
-      for (final part in path) {
-        builder.write("['$part']");
-      }
-      builder.write('[$jsonKeyName]');
-
-      return builder.toString();
-    }
 
     final builder = StringBuffer('_safeMapAccess([');
     for (final part in path) {
@@ -264,10 +254,6 @@ abstract class DecodeHelper implements HelperCore {
   }
 
   bool _hasNullablePath(FieldElement element) {
-    final jsonKey = jsonKeyFor(element);
-    if (jsonKey.nullable == false) {
-      return false;
-    }
     final path = _buildPath(element);
     return path != null && path.isNotEmpty;
   }
