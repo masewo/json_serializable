@@ -70,20 +70,7 @@ class JsonKey {
   /// the objects normally needed for parsing to your object.
   ///
   /// If `null`, no extra path will be added.
-  final String path;
-
-  /// When `true`, `null` fields are handled gracefully when encoding to JSON
-  /// and when decoding `null` and nonexistent values from JSON.
-  ///
-  /// Setting to `false` eliminates `null` verification in the generated code
-  /// for the annotated field, which reduces the code size. Errors may be thrown
-  /// at runtime if `null` values are encountered, but the original class should
-  /// also implement `null` runtime validation if it's critical.
-  ///
-  /// The default value, `null`, indicates that the behavior should be
-  /// acquired from the [JsonSerializable.nullable] annotation on the
-  /// enclosing class.
-  final bool nullable;
+  final String? path;
 
   /// When `true`, generated code for `fromJson` will verify that the source
   /// JSON map contains the associated key.
@@ -123,7 +110,6 @@ class JsonKey {
     this.includeIfNull,
     this.name,
     this.path,
-    this.nullable,
     this.required,
     this.toJson,
     this.unknownEnumValue,

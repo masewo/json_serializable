@@ -36,7 +36,7 @@ class JsonSerializable {
   /// the objects normally needed for parsing to your object.
   ///
   /// If `null`, no extra path will be added.
-  final String path;
+  final String? path;
 
   /// If `true`, [Map] types are *not* assumed to be [Map<String, dynamic>]
   /// – which is the default type of [Map] instances return by JSON decode in
@@ -203,7 +203,6 @@ class JsonSerializable {
   /// An instance of [JsonSerializable] with all fields set to their default
   /// values.
   static const defaults = JsonSerializable(
-    path: null,
     anyMap: false,
     checked: false,
     createFactory: true,
